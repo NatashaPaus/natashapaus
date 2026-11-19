@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Undervisningsressurser og verktøy fra Natasha Paus.">
+<title>Prosjekter og ressurser | Natasha Paus</title>
+<style>
+:root{color-scheme:light;--ink:#172c28;--muted:#4b6058;--accent:#135a48;--line:#d6e2d9;--paper:#f4f7f1}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:1rem/1.55 system-ui,sans-serif}
+main,footer{width:min(70rem,100% - 2.5rem);margin:auto}
+header{padding:clamp(2.5rem,8vw,6rem) 0 2.5rem}
+.name{color:var(--accent);font-weight:750}
+h1,h2,h3,p{margin:0}
+h1{font-size:clamp(2.45rem,7vw,5rem);line-height:1.04;letter-spacing:-.055em;margin:.3rem 0 1rem}
+h2{font-size:1.45rem;margin-bottom:1rem}
+h3{font-size:1.25rem}
+p{color:var(--muted)}
+.grid{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr));gap:1rem}
+.card{display:flex;flex-direction:column;gap:.7rem;padding:1.45rem;border:1px solid var(--line);border-radius:1rem;background:#fff;overflow-wrap:anywhere}
+.links{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem 1rem;margin-top:auto;padding-top:.35rem}
+a{color:var(--accent);text-underline-offset:.18em;font-weight:650}
+a:focus-visible{outline:3px solid #aa621e;outline-offset:4px}
+.primary{background:var(--accent);color:#fff;padding:.48rem .8rem;text-decoration:none;border-radius:.45rem}
+.primary:hover{background:#0b4435}
+section+section{margin-top:2.5rem}
+footer{margin-top:2.5rem;border-top:1px solid var(--line);padding:1.2rem 0 2.5rem}
+</style>
+</head>
+<body>
+<main>
+<header>
+<p class="name">Natasha Paus</p>
+<h1>Prosjekter og ressurser</h1>
+<p>Undervisningsressurser og verktøy samlet på ett sted.</p>
+</header>
+<section aria-labelledby="featured">
+<h2 id="featured">Undervisningsressurser og verktøy</h2>
+<ul class="grid">
+<li class="card"><h3>Naturfag BA</h3><p>Øvingsressurser om treverk, betong, metaller og overflatebehandling.</p><div class="links"><a class="primary" href="https://natashapaus.github.io/NaturfagBA/">Åpne Naturfag BA</a><a href="https://github.com/natashapaus/NaturfagBA" aria-label="Naturfag BA på GitHub">GitHub</a></div></li>
+<li class="card"><h3>Skilltree</h3><p>Åpne Skilltree i nettleseren.</p><div class="links"><a class="primary" href="https://natashapaus.github.io/skilltree/">Åpne Skilltree</a><a href="https://github.com/natashapaus/skilltree" aria-label="Skilltree på GitHub">GitHub</a></div></li>
+<li class="card"><h3>Prøvekalender</h3><p>Prøvekalenderen ligger i repositoriet Diverse.</p><div class="links"><a class="primary" href="https://natashapaus.github.io/diverse/">Finn prøvekalenderen</a><a href="https://github.com/natashapaus/diverse" aria-label="Diverse på GitHub">GitHub</a></div></li>
+</ul>
+</section>
+<section id="more" aria-labelledby="other-projects" hidden>
+<h2 id="other-projects">Flere repositorier</h2>
+<ul id="repos" class="grid"></ul>
+</section>
+</main>
+<footer><a href="https://github.com/natashapaus?tab=repositories">Se alle offentlige repositorier på GitHub</a></footer>
+<script>
+const featuredRepos = new Set(['naturfagba', 'skilltree', 'diverse', 'natashapaus.github.io']);
+async function showMoreRepos() {
+  const endpoint = 'https://api.github.com/users/natashapaus/repos';
+  const fragment = document.createDocumentFragment();
+
+  for (let page = 1; ; page++) {
+    const response = await fetch(endpoint + '?per_page=100&sort=full_name&page=' + page);
+    if (!response.ok) return;
+    const repos = await response.json();
+
+    for (const repo of repos) {
+      if (repo.private || featuredRepos.has(repo.name.toLowerCase())) continue;
+      const card = document.createElement('li');
+      card.className = 'card';
+      const title = document.createElement('h3');
+      const link = document.createElement('a');
+      link.href = 'https://github.com/natashapaus/' + encodeURIComponent(repo.name);
+      link.textContent = repo.name;
+      title.append(link);
+      card.append(title);
+      if (repo.description) {
+        const description = document.createElement('p');
+        description.textContent = repo.description;
+        card.append(description);
+      }
+      fragment.append(card);
+    }
+    if (repos.length < 100) break;
+  }
+  if (fragment.childElementCount) {
+    document.querySelector('#repos').append(fragment);
+    document.querySelector('#more').hidden = false;
+  }
+}
+showMoreRepos().catch(() => {
+  // The featured projects and GitHub profile link remain available.
+});
+</script>
+</body>
+</html>
+
